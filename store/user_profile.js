@@ -109,6 +109,38 @@ export const actions = {
         throw e.response;
       });
   },
+  authenticateWithToken(vueContext, authData) {
+    //let authUrl = process.env.baseUrl + "/api/login"
+    return this.$axios
+      .$post("/validate_edit_cv", {
+        email: authData.email,
+        token: authData.token
+      })
+      .then(result => {
+        vueContext.commit("setToken", result.token);
+        vueContext.commit("setUser", result.userName);
+        localStorage.setItem("token", result.token);
+        localStorage.setItem("user", result.userName);
+        localStorage.setItem(
+          "tokenExpiration",
+          new Date().getTime() + 12 * 60 * 60 * 1000
+        );
+        vueContext.commit(
+          "setTokenExpiration",
+          new Date().getTime() + 12 * 60 * 60 * 1000
+        );
+        Cookie.set("jwt", result.token);
+        Cookie.set("user", result.userName);
+        Cookie.set(
+          "expirationDate",
+          new Date().getTime() + 12 * 60 * 60 * 1000
+        );
+        vueContext.dispatch("setLogoutTimer", 12 * 60 * 60 * 1000);
+      })
+      .catch(e => {
+        throw e.response;
+      });
+  },
   setLogoutTimer(vueContext, duration) {
     setTimeout(() => {
       vuexContext.dispatch("logout");

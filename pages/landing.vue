@@ -1,80 +1,61 @@
 <template>
   <v-container grid-list-xs text-xs-center>
+    <p> <h2>DevOps Lead - Applicant Challenge</h2></p>
+        <p> <h3>As presented by: Gilbert Ofoe Apronti</h3></p>
+        <p class="mb-6"></p>
     <v-layout grow row wrap>
-      <v-flex xs12>
-        <v-form v-on:submit.prevent>
-          <p><h3>Upload your CV</h3></p>
-          <v-responsive class="mx-auto" max-width="344">
-            <div v-if="error!=''"  style="color:red" >ID should not be zero(0)</div>
-            <v-text-field
-              v-model="id"
-              text-xs-center
-              label="ID"
-              required
-              flat
-              solo-inverted
-            ></v-text-field>
+     
+      <v-flex xs6   >
+        <span class="mt-10">
+            <v-row >
+
+              <v-btn 
+            color="blue-grey"
+            class="ma-2 white--text align-self-items mt-6"
+            @click="edit"
+          >
+            Login as Applicant
+            <v-icon
+              right
+              dark
+            >
+              mdi-cloud-upload
+            </v-icon>
+          </v-btn>
+          <p>
            
-          </v-responsive>
-          <v-responsive class="mx-auto" max-width="344">
-            <div v-if="error!=''"  style="color:red" >The full name is required</div>
-            <v-text-field
-              v-model="full_name"
-              text-xs-center
-              label="Full Name"
-              required
-              flat
-              solo-inverted
-            ></v-text-field>
-           
-          </v-responsive>
-          <v-responsive class="mx-auto" max-width="344">
-            <div v-if="error!=''" style="color:red">The email is required</div>
-            <v-text-field
-              v-model="email"
-              text-xs-center
-              label="Your email"
-              required
-              type="email"
-              flat
-              solo-inverted
-            ></v-text-field>
-          </v-responsive>
-          <v-responsive class="mx-auto" max-width="344">
-            <div v-if="error!=''" style="color:red">The email is required</div>
-            <v-text-field
-              v-model="phone_number"
-              text-xs-center
-              label="Phone number"
-              required
-              type="phone_number"
-              flat
-              solo-inverted
-            ></v-text-field>
-          </v-responsive>
-          <input type="file"
-       id="avatar" name="avatar"
-       accept=".doc,.docx,.pdf,.odt" v-on:change="selectedFile($event)">
-       <v-btn
-      color="blue-grey"
-      class="ma-2 white--text"
-      @click="submit"
-    >
-      Upload
-      <v-icon
-        right
-        dark
-      >
-        mdi-cloud-upload
-      </v-icon>
-    </v-btn>
-    <div >Accepted format:.doc,.docx,.pdf,.odt</div>
-    <div v-if="error!=''" style="color:red">Upload file required</div>
-          <!-- <v-btn @click="submit">submit</v-btn> -->
-        </v-form>
+          </p>
+          As an applicant, you will receive a token in your inbox
+          <p>The token will be used to validation to edit the data</p>
+          
+          </v-row>
+        </span>
+        </v-flex>
+        <v-flex xs2>
+        
+      </v-flex>
+      <v-flex xs4>
+        <v-row class="align-center">
+              <v-btn 
+            color="blue-grey"
+            class="ma-2 white--text "
+            @click="login_page"
+          >
+            Login as Portal Administrator
+            <v-icon
+              right
+              light
+            >
+              mdi-cloud-upload
+            </v-icon>
+          </v-btn>
+          <p></p>
+          The portal admin will use the already has a password to authenticate
+          </v-row>
         
         
       </v-flex>
+   
     </v-layout>
   </v-container>
   
@@ -83,14 +64,14 @@
 import XLSX from "xlsx";
 import 'vuetify/dist/vuetify.css'
 export default {
-  layout: "auth",
-  middleware: ["check-auth", "auth"],
+  layout: "unauth",
+  middleware: [],
   data() {
     return {
       isNew:false,
       isEdit:false,
       isAdmin:false,
-      id:"",
+      id:0,
       full_name: "",
       email: "",
       phone_number: "",
@@ -116,7 +97,7 @@ export default {
       console.log("submit")
       let self = this;
       self.error=""
-      if (self.id=="" || self.full_name=="" || self.email=="" || self.phone_number=="" || self.file=="") {
+      if (self.id==0 || self.full_name=="" || self.email=="" || self.phone_number=="" || self.file=="") {
         self.error="Complete all the fields to proceed"
         return
       }

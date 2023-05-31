@@ -1,68 +1,18 @@
 <template>
   <v-container grid-list-xs text-xs-center>
-    <p> <h2>DevOps Lead - Applicant Challenge</h2></p>
-        <p> <h3>As presented by: Gilbert Ofoe Apronti</h3></p>
-        <p></p>
-    <v-layout grow row wrap></v-layout>
-    <v-layout grow row wrap></v-layout>
+    
     <v-layout grow row wrap>
-      <v-flex xs4  >
-            <v-row>
-              <v-btn 
-            color="blue-grey"
-            class="ma-2 white--text align-self-items"
-            @click="edit"
-          >
-            Edit a previous CV submission
-            <v-icon
-              right
-              dark
-            >
-              mdi-cloud-upload
-            </v-icon>
-          </v-btn>
+      
         
-          
-          </v-row>
-          <v-row class="align-center">
-              <v-btn 
-            color="blue-grey"
-            class="ma-2 white--text "
-            @click="submit"
-          >
-            Login as Portal Administrator
-            <v-icon
-              right
-              light
-            >
-              mdi-cloud-upload
-            </v-icon>
-          </v-btn>
-
-          </v-row>
-        </v-flex>
-        <v-flex xs2>
-          <v-divider
-          vertical
-          >
-        </v-divider>
-      </v-flex>
-      <v-flex xs6>
+      <v-flex xs12>
         <v-form v-on:submit.prevent>
-          <p><h3>Upload your CV</h3></p>
+          <h3>Edit application data</h3>
           <v-responsive class="mx-auto" max-width="344">
-            <div v-if="error!=''"  style="color:red" >ID</div>
-            <v-text-field
-              v-model="id"
-              text-xs-center
-              label="ID"
-              required
-              flat
-              solo-inverted
-              type="number"
-            ></v-text-field>
+            <div >The ID field cannot be edited <v-label>{{id}}</v-label></div>
+            
            
           </v-responsive>
+          <p></p>
           <v-responsive class="mx-auto" max-width="344">
             <div v-if="error!=''"  style="color:red" >The full name is required</div>
             <v-text-field
@@ -99,15 +49,26 @@
               solo-inverted
             ></v-text-field>
           </v-responsive>
+          <v-responsive class="mx-auto" max-width="344">
+            
+    <a :href="download_file_path" :download="cv_file_name">Download {{ cv_file_name }}</a>
+          </v-responsive>
+      <p></p>
+      <v-divider >
+        </v-divider>
+        <div class="mt-4">
+          <p>You may upload a new file, however this is optional. </p>
           <input type="file"
        id="avatar" name="avatar"
-       accept="image/png, image/jpeg" v-on:change="selectedFile($event)">
+       accept=".doc,.docx,.pdf,.odt"  v-on:change="selectedFile($event)">
+       <div >Accepted format:.doc,.docx,.pdf,.odt</div>
+
        <v-btn
       color="blue-grey"
       class="ma-2 white--text"
       @click="submit"
     >
-      Upload
+      Update application data
       <v-icon
         right
         dark
@@ -115,6 +76,23 @@
         mdi-cloud-upload
       </v-icon>
     </v-btn>
+    <v-divider >
+        </v-divider>
+    <v-btn
+      color="#D50000"
+      class="mt-4 ma-2 white--text"
+      @click="delete_application"
+    >
+      Delete my application
+      <v-icon
+        right
+        dark
+        
+      >
+        mdi-cloud-upload
+      </v-icon>
+    </v-btn>
+  </div>
           <!-- <v-btn @click="submit">submit</v-btn> -->
         </v-form>
         
@@ -128,8 +106,8 @@
 import XLSX from "xlsx";
 import 'vuetify/dist/vuetify.css'
 export default {
-  layout: "unauth",
-  middleware: [],
+  layout: "auth",
+  middleware: ["check-auth", "auth"],
   data() {
     return {
       isNew:false,
@@ -139,69 +117,110 @@ export default {
       full_name: "",
       email: [],
       phone_number: "",
+      cv_file_name:"",
+      download_file_path: "",
       message: "we have a lot of bas",
       error: "",
       file: ""
     };
   },
   mounted(){
-    console.log("mounted")
-    this.$toast("My toast content", {
-    timeout: 2000
-});
+    console.log(this.$route.params.id)
+    const data=this.$route.params.id ?? ""
+    let self=this
+    if (data ===""){
+      this.$toast.error("There was an error fetching the requested info.")
+      this.$router.push("/application_list")
+      return
+    }
+    this.$axios
+        .post("/get_single_item", JSON.stringify({"id":data}), {
+        })
+        .then(res => {
+          self.$toast.success("Fetched successful")
+          self.email=res.data.email
+          self.id=res.data.id
+          self.full_name=res.data.applicant_name
+          self.phone_number=res.data.phone
+          self.cv_file_name=res.data.file_name
+          self.download_file_path="/public/"+res.data.file_name
+        })
+        .catch(e => {
+          this.$toast.success("There was an error serving your request")
+        });
+
+    
   },
   methods: {
+    login_page(){
+      this.$router.push("/login")
+    },
     selectedFile(event) {
       this.file = event.target.files[0]
     }, 
+    new_application(){
+      this.$router.push("/uploadcv")
+    },
+    delete_application(){
+      let self = this;
+      self.message = "";
+      self.error = "";
+      if (self.id==""){
+        this.$toast.error("The ID is invalid")
+        return
+      }
+      this.$axios
+        .post("/delete_application", JSON.stringify({"id":self.id}), {
+        })
+        .then(res => {
+          this.$toast.success("Delete successful")
+          self.$router.push("/application_list")
+        })
+        .catch(e => {
+          this.$toast.success("There was an error serving your request")
+        });
+    },
     submit() {
       
       console.log("submit")
       let self = this;
-      if (self.id==0 || self.full_name=="" || self.email=="" || self.phone_number=="" || self.file=="") {
+      if (self.id==0 || self.full_name=="" || self.email=="" || self.phone_number=="") {
         self.error="Complete all the fields to proceed"
+        self.$toast.error("Complete all the fields before submitting")
         return
       }
       let formData = new FormData();
       formData.append('id', self.id);
-      formData.append('cv_file', self.file);
+      if (self.file!=""){
+        formData.append('cv_file', self.file);
+      }
       formData.append("name",self.full_name)
       formData.append("email",self.email)
       formData.append("phone",self.phone_number)
-      
-          // const token = self.$store.state.user_profile.token;
-          // if (token === null) {
-          //   self.error="You need to be logged in"
-          //   return;
-          // }
-          // this.$axios
-          //   .post("/uploadcv", JSON.stringify(casas), {
-          //     headers: { Authorization: `Bearer ${token}` },
-          //   })
-          //   .then((res) => {
-          //     console.log("here1", res.data);
 
-          //     self.items = res.data;
-          //     console.log("self.items", self.items);
-          //   })
-          //   .catch((e) => {
-          //     self.error = e.data;
-          //   });
-          
           this.$axios
-            .post("/uploadcv",formData, {headers: { "Content-Type": "multipart/form-data" } }
+            .post("/update_cv_application",formData, {headers: { "Content-Type": "multipart/form-data" } }
             )
             .then((res) => {
-              console.log("here1", res.data);
-
-              self.items = res.data;
-              console.log("self.items", self.items);
+              self.$toast.success("Application updated.")
+              self.$router.push("/application_list")
             })
             .catch((e) => {
-              self.error = e.data;
+              this.$toast.error("There was an error processing your request")
             });
       
     },
+    download(){
+
+    },
+    loadForm(data){
+      let self=this
+      self.id=data.id
+      self.full_name=data.applicant_name
+      self.email=data.email
+      self.phone_number=data.phone 
+      self.cv_file_name=data.file_name
+    }, 
 
     onexport() {
       // On Click Excel download button

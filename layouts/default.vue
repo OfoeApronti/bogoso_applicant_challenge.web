@@ -24,7 +24,6 @@
       </v-list>
     </v-navigation-drawer>
     <v-toolbar
-      color="blue darken-3"
       dark
       app
       :clipped-left="$vuetify.breakpoint.mdAndUp"
@@ -34,7 +33,7 @@
         <v-toolbar-side-icon
           @click.stop="drawer = !drawer"
         ></v-toolbar-side-icon>
-        <span class="hidden-sm-and-down">Flexkit</span>
+        <span class="hidden-sm-and-down">Applicant Challenge</span>
       </v-toolbar-title>
 
       <v-spacer></v-spacer>
@@ -65,32 +64,18 @@ export default {
       drawer: null,
       fixed: true,
       sample_items: [
-        {
+      {
           icon: "account_balance",
-          title: "Accounts",
+          title: "Applicants",
           action: "battery_alert",
-          route: "/acc",
+          route: "/application_list"
         },
         {
           icon: "perm_contact_calendar",
-          title: "Customer",
+          title: "Add New",
           action: "storage",
           active: false,
-          route: "/cust",
-        },
-        {
-          icon: "perm_identity",
-          title: "Unique ID",
-          action: "settings",
-          active: false,
-          route: "/uniqueid",
-        },
-        {
-          icon: "sync_problem",
-          title: "Sync BOIS",
-          action: "settings",
-          active: false,
-          route: "/refreshbois",
+          route: "/uploadcv"
         },
       ],
     };

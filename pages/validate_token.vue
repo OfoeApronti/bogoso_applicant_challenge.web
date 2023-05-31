@@ -63,30 +63,42 @@ export default {
     this.email=email
   },
   methods:{
-    validate_token(val){
-      let mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-      if(val.match(mailformat))
-      {
-      console.log("Valid email address!");
-      return true;
-    } else {
-      return false;
-    }
-    },
-    submit(){
+
+    // submit(){
+    //   let self = this;
+    //   self.message = "";
+    //   self.error = "";
+    //   this.$axios
+    //     .post("/validate_edit_cv", JSON.stringify({"email":self.email, "token":self.token}), {
+    //     })
+    //     .then(res => {
+    //       self.$router.push({name:"edit_cv", params: {data:res.data}})
+    //     })
+    //     .catch(e => {
+    //       this.$toast.success("There was an error serving your request")
+    //     });
+    // }
+    submit() {
       let self = this;
-      self.message = "";
-      self.error = "";
-      this.$axios
-        .post("/validate_edit_cv", JSON.stringify({"email":self.email, "token":self.token}), {
+      if (this.email === "" || this.token === "") {
+        return;
+      }
+      this.$store
+        .dispatch("user_profile/authenticateWithToken", {
+          email:self.email,token:self.token
         })
-        .then(res => {
-          self.$router.push("/edit_cv")
+        .then(() => {
+          this.$router.push("/application_list");
         })
-        .catch(e => {
-          this.$toast.success("There was an error serving your request")
+        .catch((e) => {
+          console.log("le", e);
+          if (e.data.includes("Invalid Credentials")) {
+            self.error = "Invalid Credentials";
+          } else {
+            self.error = "An error occured";
+          }
         });
-    }
+    },
   }
 }
 </script>
