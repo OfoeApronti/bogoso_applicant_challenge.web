@@ -37,15 +37,23 @@
               <a
                 :href="'/public/' + props.item.file_name"
                 :download="props.item.file_name"
+                target="_blank"
                 >Download</a
               >
             </td>
-            <td class="text-xs-left"><v-btn color="primary" dark v-on:click="edit_item(props.item.id)"
-            >Edit</v-btn
-          ></td>
-          <td class="text-xs-left"><v-btn color="secondary" dark v-on:click="delete_item(props.item.id)"
-            >Delete</v-btn
-          ></td>
+            <td class="text-xs-left">
+              <v-btn color="primary" dark v-on:click="edit_item(props.item.id)"
+                >Edit</v-btn
+              >
+            </td>
+            <td class="text-xs-left">
+              <v-btn
+                color="secondary"
+                dark
+                v-on:click="delete_item(props.item.id)"
+                >Delete</v-btn
+              >
+            </td>
           </template>
         </v-data-table>
       </v-flex>
@@ -74,75 +82,80 @@ export default {
     };
   },
   mounted() {
-    this.load_list()
+    this.load_list();
   },
   methods: {
-    load_list(){
+    load_list() {
       let self = this;
-    const token = self.$store.state.user_profile.token;
-    if (token === null) {
-      this.$router.push("/landing");
-      return;
-    }
-    this.$axios
-      .get("/get_applicants_list", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => {
-        self.items = res.data;
-      })
-      .catch((e) => {
-        self.error = e.data;
-      });
-    },  
-    search_by_id(){
-      let self=this
       const token = self.$store.state.user_profile.token;
-      console.log(token)
-    if (token === null) {
-      this.$router.push("/landing");
-      return;
-    }
+      if (token === null) {
+        this.$router.push("/landing");
+        return;
+      }
       this.$axios
-      .post("/search_by_id", {id:self.search_id},{
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => {
-
-        self.items = res.data;
-      })
-      .catch((e) => {
-        self.error = e.data;
-      });
-
-    },
-    delete_item(id){
-      let self=this
-      const token = self.$store.state.user_profile.token;
-    if (token === null) {
-      this.$router.push("/landing");
-      return;
-    }
-      this.$axios
-        .post("/delete_application", {id},{
-        headers: { Authorization: `Bearer ${token}` },
-      
+        .get("/get_applicants_list", {
+          headers: { Authorization: `Bearer ${token}` },
         })
-        .then(res => {
-          this.$toast.success("Delete successful")
-          self.load_list()
+        .then((res) => {
+          self.items = res.data;
         })
-        .catch(e => {
-          this.$toast.success("There was an error serving your request")
+        .catch((e) => {
+          self.error = e.data;
         });
     },
-    create_new(){
-      this.$router.push("/uploadcv")
-    }, 
-    edit_item(id){
-      console.log(id)
-      this.$router.push({name:"edit_cv", params: {id}})
-    } , 
+    search_by_id() {
+      let self = this;
+      const token = self.$store.state.user_profile.token;
+      console.log(token);
+      if (token === null) {
+        this.$router.push("/landing");
+        return;
+      }
+      this.$axios
+        .post(
+          "/search_by_id",
+          { id: self.search_id },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        )
+        .then((res) => {
+          self.items = res.data;
+        })
+        .catch((e) => {
+          self.error = e.data;
+        });
+    },
+    delete_item(id) {
+      let self = this;
+      const token = self.$store.state.user_profile.token;
+      if (token === null) {
+        this.$router.push("/landing");
+        return;
+      }
+      this.$axios
+        .post(
+          "/delete_application",
+          { id },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        )
+        .then((res) => {
+          this.$toast.success("Delete successful");
+          self.load_list();
+        })
+        .catch((e) => {
+          this.$toast.success("There was an error serving your request");
+        });
+    },
+    create_new() {
+      this.$router.push("/uploadcv");
+    },
+    edit_item(id) {
+      console.log(id);
+      this.$router.push({ name: "edit_cv", params: { id } });
+    },
     submit() {
       let self = this;
       self.message = "";
