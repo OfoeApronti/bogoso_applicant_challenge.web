@@ -169,8 +169,14 @@ export default {
         this.$toast.error("The ID is invalid")
         return
       }
+      const token = self.$store.state.user_profile.token;
+      console.log(token);
+      if (token === null) {
+        this.$router.push("/landing");
+        return;
+      }
       this.$axios
-        .post("/delete_application", JSON.stringify({"id":self.id}), {
+        .post("/delete_application", JSON.stringify({"id":self.id}), {headers: { Authorization: `Bearer ${token}`}
         })
         .then(res => {
           this.$toast.success("Delete successful")
@@ -197,9 +203,14 @@ export default {
       formData.append("name",self.full_name)
       formData.append("email",self.email)
       formData.append("phone",self.phone_number)
-
+      const token = self.$store.state.user_profile.token;
+      console.log(token);
+      if (token === null) {
+        this.$router.push("/landing");
+        return;
+      }
           this.$axios
-            .post("/update_cv_application",formData, {headers: { "Content-Type": "multipart/form-data" } }
+            .post("/update_cv_application",formData, {headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" } }
             )
             .then((res) => {
               self.$toast.success("Application updated.")

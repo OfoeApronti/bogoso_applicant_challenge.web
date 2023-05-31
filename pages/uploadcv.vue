@@ -113,7 +113,7 @@ export default {
     },
     submit() {
       
-      console.log("submit")
+      
       let self = this;
       self.error=""
       if (self.id=="" || self.full_name=="" || self.email=="" || self.phone_number=="" || self.file=="") {
@@ -126,8 +126,14 @@ export default {
       formData.append("name",self.full_name)
       formData.append("email",self.email)
       formData.append("phone",self.phone_number)
+      const token = self.$store.state.user_profile.token;
+      console.log(token);
+      if (token === null) {
+        this.$router.push("/landing");
+        return;
+      }
           this.$axios
-            .post("/uploadcv",formData, {headers: { "Content-Type": "multipart/form-data" } }
+            .post("/uploadcv",formData, {headers: {Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" } }
             )
             .then((res) => {
               self.resetForm()
