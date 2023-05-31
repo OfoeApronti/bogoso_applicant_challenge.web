@@ -1,4 +1,4 @@
-# flexkit2.web
+# Application Challenge
 
 > My scrumtrulescent Nuxt.js project
 
